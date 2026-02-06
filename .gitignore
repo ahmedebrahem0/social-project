@@ -2,17 +2,23 @@
 .next/
 out/
 
-# Node
+# Node / pnpm
 node_modules/
 .pnpm-store/
-pnpm-lock.yaml   ← لو مش عايز ترفعه
 
-# Env
+# Env / Secrets
 .env
 .env.local
 .env.*.local
 
-# Editor
+# Editor / IDE
 .vscode/
 .idea/
 *.log
+
+# macOS / Windows junk
+.DS_Store
+Thumbs.db
+
+# Optional: if you really don't want lock file (not recommended)
+# pnpm-lock.yaml
