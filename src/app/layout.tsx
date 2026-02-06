@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from '../theme'; // تأكد من إنشاء هذا الملف أو حذفه إذا كنت لا تستخدم Theme مخصص
+import Navbar from "../components/common/Navbar";
+import { Toaster } from "react-hot-toast";
+import StoreProvider from '../store/StoreProvider';
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -23,11 +29,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <AppRouterCacheProvider>
+          <ThemeProvider theme={theme}>
+            <StoreProvider>
+              <Navbar/>
+              {children}
+              <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
+            </StoreProvider>
+          </ThemeProvider>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );

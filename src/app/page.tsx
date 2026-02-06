@@ -1,3 +1,5 @@
+
+import Button from "@mui/material/Button";
 import Image from "next/image";
 
 export default function Home() {
@@ -58,6 +60,8 @@ export default function Home() {
           >
             Documentation
           </a>
+          <button className='p-2 bg-red-500'>click me</button>
+          <Button variant="contained">Contained</Button>
         </div>
       </main>
     </div>
