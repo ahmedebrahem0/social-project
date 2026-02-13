@@ -2,10 +2,10 @@
 import LoginForm from "@/features/auth/components/LoginForm";
 
 export const metadata = {
-  title: "تسجيل الدخول - Linked Posts",
-  description: "سجل دخولك لحسابك في Linked Posts",
+  title: "login - Linked Posts",
+  description: "Login to your Linked Posts account",
 };
 
 export default function LoginPage() {
-  return <LoginForm />;
+  return <LoginForm />
 }
