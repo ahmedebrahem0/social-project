@@ -25,6 +25,18 @@ export interface RegisterApiResponse {
 }
 
 
+// types for change password
+export interface ChangePasswordCredentials {
+  password: string;        // Old password
+  newPassword: string;     // New password
+}
+
+// ✅ عدل الـ Response - فيه token
+export interface ChangePasswordApiResponse {
+  message: string;
+  token: string;  // ✅ أضف الـ token
+}
+
 
 //types for auth state
 export interface AuthState {

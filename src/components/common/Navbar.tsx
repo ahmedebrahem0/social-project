@@ -106,6 +106,9 @@ export default function Navbar() {
       </Link>
 
       <MenuItem onClick={handleMenuClose}>logout</MenuItem>
+      <Link href="/changepassword">
+        <MenuItem onClick={handleMenuClose}>Change pass</MenuItem>
+      </Link>
     </Menu>
   );
 

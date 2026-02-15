@@ -1,8 +1,9 @@
 // store/slices/auth.slice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { loginUser, registerUser } from "@/services/auth.service";
+import { loginUser, registerUser, changePassword as changePasswordService } from "@/services/auth.service";
 import type { AuthState, LoginCredentials, LoginApiResponse, RegisterCredentials, RegisterApiResponse } from "@/types/auth";
 import toast from "react-hot-toast";
+import { ChangePasswordApiResponse, ChangePasswordCredentials } from '../../types/auth';
 
 const initialState: AuthState = {
   token: null,
@@ -38,6 +39,21 @@ export const register = createAsyncThunk<
     return await registerUser(credentials);
   } catch (err: any) {
     return rejectWithValue(err.message || "Registration failed.");
+  }
+});
+
+/**
+ * Change Password thunk
+ */
+export const changePassword = createAsyncThunk<
+  ChangePasswordApiResponse,
+  ChangePasswordCredentials,
+  { rejectValue: string }
+>("auth/changePassword", async (credentials, { rejectWithValue }) => {
+  try {
+    return await changePasswordService(credentials);
+  } catch (err: any) {
+    return rejectWithValue(err.message || "Failed to change password.");
   }
 });
 
@@ -82,6 +98,7 @@ const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+        console.log(state.error)
         toast.error(state.error || "Login failed", { id: "auth-toast" });
       });
 
@@ -102,6 +119,31 @@ const authSlice = createSlice({
         state.error = action.payload as string;
         toast.error(state.error || "Registration failed", { id: "auth-toast" });
       });
+    // ─── Change Password Cases ──────────────────────────────────────────
+    builder
+      .addCase(changePassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        toast.loading("Changing password...", { id: "auth-toast" });
+      })
+      .addCase(changePassword.fulfilled, (state, action: PayloadAction<ChangePasswordApiResponse>) => {
+        state.isLoading = false;
+        state.error = null;
+        
+        state.token = action.payload.token;
+        
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", action.payload.token);
+        }
+        
+        toast.success("Password changed successfully!", { id: "auth-toast" });
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+        toast.error(state.error || "Failed to change password", { id: "auth-toast" });
+      });
+
   },
 });
 
