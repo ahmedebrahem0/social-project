@@ -16,7 +16,6 @@ import {
   TextField,
   Button,
   FormControlLabel,
-  Checkbox,
   Paper,
   RadioGroup,
   Radio,
@@ -33,8 +32,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import { RegisterSchema } from "@/features/auth/schema/auth.schema";
 import type { RegisterFormValues } from "@/features/auth/schema/auth.schema";
-import { AuthState } from '../../../types/auth';
-import { format } from "path";
+import { format } from "date-fns";
 
 export function RegisterForm() {
   const dispatch = useAppDispatch();
@@ -55,7 +53,6 @@ export function RegisterForm() {
     mode: "onSubmit",
   });
 
-  const password = watch("password");
 const { isAuthenticated } = useAppSelector((state) => state.auth);
   // check user Auth
   useEffect(() => {

@@ -28,7 +28,7 @@ import { login } from "@/store/slices/auth.slice";
 export default function LoginForm() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { isAuthenticated, isLoading, error } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
 
   const [showPassword, setShowPassword] = useState(false);
 
