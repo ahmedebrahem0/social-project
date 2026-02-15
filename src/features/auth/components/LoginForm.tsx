@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import toast from "react-hot-toast";
 import Link from "next/link";
 
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -24,9 +23,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import { loginSchema } from "@/features/auth/schema/auth.schema";
 import type { LoginCredentials } from "@/types/auth";
-// import { loginStart, loginSuccess, loginFailure, setToken } from '@/store/slices/auth.slice'; 
-import { loginUser } from "@/services/auth.service";
-import { setToken } from "@/store/slices/auth.slice";
+import { login } from "@/store/slices/auth.slice";
 
 export default function LoginForm() {
   const dispatch = useAppDispatch();
@@ -44,12 +41,6 @@ export default function LoginForm() {
     mode: "onSubmit",
   });
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      dispatch(setToken(token));
-    }
-  }, [dispatch]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -57,25 +48,15 @@ export default function LoginForm() {
     }
   }, [isAuthenticated, router]);
 
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-  }, [error]);
 
-  const onSubmit = async (data: LoginCredentials) => {
-    // dispatch(loginStart());
-    try {
-      const response = await loginUser(data);
-      // dispatch(loginSuccess(response));
-      localStorage.setItem("token", response.token);
-      toast.success("Logged in successfully");
-    } catch (err: any){
-      toast.error(err.message || "Login failed");
-      // const message = err.message || "Login failed"; 
-      // dispatch(loginFailure(message));
+const onSubmit = async (data: LoginCredentials) => {
+    const result = await dispatch(login(data));
+    
+    if (login.fulfilled.match(result)) {
+      router.replace("/");
     }
   };
+
 
   return (
     <Box

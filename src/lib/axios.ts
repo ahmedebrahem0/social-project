@@ -17,7 +17,7 @@ api.interceptors.request.use(
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("token");
       if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+        config.headers.token = token;
       }
     }
     return config;
@@ -28,9 +28,11 @@ api.interceptors.request.use(
 // Handle errors globally
 api.interceptors.response.use(
   (response) => response,
+  
   (error) => {
     let message = "An error occurred";
     if (error.response) {
+      console.log("API Error:", error.response); 
       message = error.response.data?.error || `Error ${error.response.status}`;
     } else if (error.request) {
       message = "No response from server. Check your connection.";

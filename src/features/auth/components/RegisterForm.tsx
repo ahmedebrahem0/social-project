@@ -1,7 +1,15 @@
+// features/auth/components/RegisterForm.tsx
 "use client";
 
-import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import Link from "next/link";
+
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { register as registerUser } from "@/store/slices/auth.slice"; // ← الـ thunk
+
 import {
   Box,
   Typography,
@@ -15,51 +23,60 @@ import {
   FormControl,
   FormLabel,
   FormHelperText,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { format } from "date-fns";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-type RegisterFormValues = {
-  name: string;
-  email: string;
-  password: string;
-  rePassword: string;
-  dateOfBirth: Date | null;
-  gender: "male" | "female" | "";
-  agreeToTerms: boolean;
-};
+import { RegisterSchema } from "@/features/auth/schema/auth.schema";
+import type { RegisterFormValues } from "@/features/auth/schema/auth.schema";
+import { AuthState } from '../../../types/auth';
+import { format } from "path";
 
 export function RegisterForm() {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { isLoading } = useAppSelector((state) => state.auth);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRePassword, setShowRePassword] = useState(false);
+
   const {
     register,
     handleSubmit,
     watch,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RegisterFormValues>({
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      rePassword: "",
-      dateOfBirth: null,
-      gender: "",
-      agreeToTerms: false,
-    },
+    resolver: yupResolver(RegisterSchema),
     mode: "onSubmit",
   });
 
   const password = watch("password");
-
-  const onSubmit = async (values: RegisterFormValues) => {
-    const formattedData = {
+const { isAuthenticated } = useAppSelector((state) => state.auth);
+  // check user Auth
+  useEffect(() => {
+  if (isAuthenticated) {
+    router.replace("/");
+  }
+}, [isAuthenticated, router]);
+  
+const onSubmit = async (values: RegisterFormValues) => {
+    const payload = {
       ...values,
-      dateOfBirth: values.dateOfBirth ? format(values.dateOfBirth, "d-M-yyyy") : "",
+      dateOfBirth: values.dateOfBirth 
+        ? format(values.dateOfBirth, "d-M-yyyy") 
+        : "",
     };
-    console.log("Register values:", formattedData);
-    // هنا في المستقبل: ربط بالـ API / backend
+
+    const result = await dispatch(registerUser(payload as any));
+    
+    if (registerUser.fulfilled.match(result)) {
+      router.push("/login");
+    }
   };
 
   return (
@@ -112,10 +129,7 @@ export function RegisterForm() {
               variant="outlined"
               error={!!errors.name}
               helperText={errors.name?.message}
-              {...register("name", {
-                required: "Name is required",
-                minLength: { value: 2, message: "Name is too short" },
-              })}
+              {...register("name")}
             />
 
             {/* Email */}
@@ -127,94 +141,89 @@ export function RegisterForm() {
               variant="outlined"
               error={!!errors.email}
               helperText={errors.email?.message}
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: "Please enter a valid email",
-                },
-              })}
+              {...register("email")}
             />
 
             {/* Password */}
             <TextField
               label="Password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               fullWidth
               variant="outlined"
               error={!!errors.password}
               helperText={errors.password?.message}
-              {...register("password", {
-                required: "Password is required",
-                minLength: { value: 6, message: "Password must be at least 6 characters" },
-              })}
+              {...register("password")}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
 
             {/* Confirm Password */}
             <TextField
               label="Confirm Password"
-              type="password"
+              type={showRePassword ? "text" : "password"}
               placeholder="••••••••"
               fullWidth
               variant="outlined"
               error={!!errors.rePassword}
               helperText={errors.rePassword?.message}
-              {...register("rePassword", {
-                required: "Please confirm your password",
-                validate: (value) => value === password || "Passwords do not match",
-              })}
+              {...register("rePassword")}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowRePassword(!showRePassword)} edge="end">
+                      {showRePassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
 
             {/* Date of Birth */}
             <DatePicker
-              label="Date of Birth"
-              value={watch("dateOfBirth")}
-              onChange={(newValue) => setValue("dateOfBirth", newValue)}
-              format="dd-MM-yyyy"
-              disableFuture
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  variant: "outlined",
-                  error: !!errors.dateOfBirth,
-                  helperText: errors.dateOfBirth?.message,
-                },
-              }}
-            />
-            {errors.dateOfBirth && (
-              <Typography variant="caption" color="error" sx={{ mt: -1.5, ml: 1.5 }}>
-                {errors.dateOfBirth.message}
-              </Typography>
-            )}
+  label="Date of Birth"
+  value={watch("dateOfBirth") || null}  // أو watch("dateOfBirth") ?? null
+  onChange={(newValue) => setValue("dateOfBirth", newValue)}
+  format="dd-MM-yyyy"
+  disableFuture
+  slotProps={{
+    textField: {
+      fullWidth: true,
+      variant: "outlined",
+      error: !!errors.dateOfBirth,
+      helperText: errors.dateOfBirth?.message,
+    },
+  }}
+/>
 
             {/* Gender */}
-            <FormControl error={!!errors.gender} sx={{ mt: 1 }}>
-              <FormLabel id="gender-label">Gender</FormLabel>
-              <RadioGroup
-                row
-                aria-labelledby="gender-label"
-                value={watch("gender")}
-                onChange={(e) => setValue("gender", e.target.value as "male" | "female")}
-              >
-                <FormControlLabel value="male" control={<Radio />} label="Male" />
-                <FormControlLabel value="female" control={<Radio />} label="Female" />
-              </RadioGroup>
-              {errors.gender && (
-                <FormHelperText>{errors.gender.message}</FormHelperText>
-              )}
-            </FormControl>
+            {/* Gender */}
+<FormControl error={!!errors.gender} sx={{ mt: 1 }}>
+  <FormLabel id="gender-label">Gender</FormLabel>
+  <RadioGroup
+  row
+  aria-labelledby="gender-label"
+  value={watch("gender") ?? ""}   // ← ?? "" → nullish coalescing (يفضل)
+  onChange={(e) => setValue("gender", e.target.value as "male" | "female")}
+>
+    <FormControlLabel value="male" control={<Radio />} label="Male" />
+    <FormControlLabel value="female" control={<Radio />} label="Female" />
+  </RadioGroup>
+  {errors.gender && (
+    <FormHelperText>{errors.gender.message}</FormHelperText>
+  )}
+</FormControl>
 
-            {/* Terms Checkbox */}
+            {/* Terms Checkbox
             <FormControlLabel
-              control={
-                <Checkbox
-                  size="small"
-                  {...register("agreeToTerms", {
-                    required: "You must agree to the terms",
-                  })}
-                />
-              }
+              control={<Checkbox size="small" {...register("agreeToTerms")} />}
               label={
                 <Typography variant="body2">
                   I agree to the{" "}
@@ -233,14 +242,14 @@ export function RegisterForm() {
               <Typography variant="caption" color="error" sx={{ mt: -1.5, ml: 4 }}>
                 {errors.agreeToTerms.message}
               </Typography>
-            )}
+            )} */}
 
             {/* Submit */}
             <Button
               type="submit"
               variant="contained"
               fullWidth
-              disabled={isSubmitting}
+              disabled={isLoading}
               sx={{
                 py: { xs: 1.2, sm: 1.4 },
                 textTransform: "none",
@@ -248,10 +257,9 @@ export function RegisterForm() {
                 fontSize: { xs: "0.95rem", sm: "1rem" },
                 bgcolor: "grey.900",
                 "&:hover": { bgcolor: "grey.800" },
-                "&.Mui-disabled": { bgcolor: "grey.400" },
               }}
             >
-              {isSubmitting ? "Creating account..." : "Create account"}
+              {isLoading ? "Creating account..." : "Create account"}
             </Button>
 
             {/* Already have account */}
