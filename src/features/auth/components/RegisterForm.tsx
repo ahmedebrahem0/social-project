@@ -201,7 +201,7 @@ const onSubmit = async (values: RegisterFormValues) => {
 />
 
             {/* Gender */}
-            {/* Gender */}
+
 <FormControl error={!!errors.gender} sx={{ mt: 1 }}>
   <FormLabel id="gender-label">Gender</FormLabel>
   <RadioGroup
