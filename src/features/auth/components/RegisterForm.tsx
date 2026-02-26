@@ -184,10 +184,10 @@ const onSubmit = async (values: RegisterFormValues) => {
             />
 
             {/* Date of Birth */}
-            <DatePicker
+<DatePicker
   label="Date of Birth"
-  value={watch("dateOfBirth") || null}  // أو watch("dateOfBirth") ?? null
-onChange={(newValue) => setValue("dateOfBirth", newValue)}
+  value={watch("dateOfBirth") || null}
+  onChange={(newValue) => setValue("dateOfBirth", newValue!, { shouldValidate: true })}
   format="dd-MM-yyyy"
   disableFuture
   slotProps={{

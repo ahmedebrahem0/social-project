@@ -16,7 +16,7 @@ export interface RegisterCredentials {
   email: string;
   password: string;
   rePassword: string;
-  dateOfBirth: Date | null; // "d-M-yyyy"
+  dateOfBirth: Date | null; 
   gender: "male" | "female"; // أضف union type للـ gender
 }
 
