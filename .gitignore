@@ -13,6 +13,7 @@ node_modules/
 
 # Editor / IDE
 .vscode/
+.zencoder
 .idea/
 *.log
 
