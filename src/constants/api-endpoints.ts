@@ -32,7 +32,8 @@
         SINGLE: (id: string) => `/posts/${id}`,   // GET | PUT | DELETE post
         USER_POSTS: (userId: string) =>
         `/posts?userId=${userId}`,
-    },
+        },
+    
 
     // ========================
     // Comments
