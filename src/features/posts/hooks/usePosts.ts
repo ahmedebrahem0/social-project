@@ -1,11 +1,11 @@
 // features/posts/hooks/usePosts.ts
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchPosts } from "@/store/slices/posts.slice";
+import { fetchPosts } from "@/store/slices/post.slice";
 
 export function usePosts(page: number = 1, limit: number = 50) {
   const dispatch = useAppDispatch();
-  const { Posts, isLoading, error, paginationInfo, hasMore } = useAppSelector(
+  const { posts, isLoading, error, paginationInfo, hasMore } = useAppSelector(
     (state) => state.posts
   );
 
@@ -20,7 +20,7 @@ export function usePosts(page: number = 1, limit: number = 50) {
   };
 
   return {
-    Posts,
+    posts,
     isLoading,
     error,
     paginationInfo,

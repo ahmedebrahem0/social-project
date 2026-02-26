@@ -33,7 +33,7 @@ export const fetchPosts = createAsyncThunk<
   }
 );
 
-const postsSlice = createSlice({
+ const postsSlice = createSlice({
   name: "posts",
   initialState,
   reducers: {

@@ -26,7 +26,7 @@ export default function PostList() {
     );
   }
 
-  if (posts.length === 0) {
+  if (!isLoading && posts.length === 0) {
     return (
       <Box sx={{ textAlign: "center", py: 4 }}>
         <Typography variant="h6" color="text.secondary">
