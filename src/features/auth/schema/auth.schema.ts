@@ -41,6 +41,7 @@ export const RegisterSchema = yup.object({
 
   dateOfBirth: yup
     .date()
+    .nullable()
     .required("Date of birth is required")
     .max(new Date(), "Date of birth cannot be in the future")
     .test(
